@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Cookie, Response
+from fastapi import FastAPI, Cookie, Response, Header, Request, HTTPException
 from typing import List
 
 from app.models.User import User
@@ -144,3 +144,13 @@ async def user_info(session_token=Cookie()):
         return user.dict()  # у pydantic моделей есть метод dict(), который делает словарь из модели. Можно сразу
         # хранить словарь в сессии, не суть. Для Pydantic версии > 2 метод переименован в model_dump()
     return {"message": "Unauthorized"}
+
+
+@app.get("/headers")
+async def headers_def(user_aget: str | None = Header(), accept_language: str | None = Header()):
+    if user_aget and accept_language:
+        return {
+            "User-agent": user_aget,
+            "Accept-Language": accept_language
+        }
+    return HTTPException(status_code=400, detail="Headers User-agent or Accept-Language not found")
